@@ -1,0 +1,42 @@
+This is a list of tasks to be done in order to develop
+     	       	  	MappaFunghi
+an android-app displaying funghi distribution following
+key environmental constraints.
+
+1) key inputs:		resolution:
+   - soil type		vector data, major soil types resolved
+   - vegetation type	1 km
+   - soil moisture	1 km
+   - topography		1 km
+   - temperature	10 km 
+
+2) tasks
+   - get all input data sets required
+     - soil type   	done (source: ???)
+     - vegetation type	done (source: ???)
+     - soil moisture	done (source: ???)
+     - topography	pending
+     - temperature	pending
+     - phenological information (database)
+   - convert input data to format required
+     - raster data: GeoTiff
+       - soil moisture: BUFR -> NetCDF4 -> GeoTiff (R script)
+     - vector data: shapefiles
+   - write script to retrieve updated data on a regular basis:
+     - soil moisture: every 3-5 days
+     - temperature:   daily
+   - clip datasets to study area extent (Germany): 
+     - N: 55.0585 degrees -> 55.6
+     - S: 47.2703 degrees -> 46.7
+     - E: 15.0419 degrees -> 15.6
+     - W:  5.8667 degrees ->  5.3 
+   - remapping to one common projection
+     - determine projection type: WGS? UTM? Gauss-Krueger?
+   - merge datasets within QGIS:
+     - combine raster and vector information,
+       rasterize vector data if necessary
+     - for each pixel, information is required for:
+       - soil type: acidic, alcalic? boolean 
+       - vegetation type: non-forested, broadleaf, evergreen? boolean
+       - soil moisture: SWC above threshold value for > 2 weeks? boolean
+       - phenology: growing season? boolean
