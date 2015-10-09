@@ -22,8 +22,7 @@ modisProducts <- function() {
 
 #-----------------------
 
-.modisHTTP <- function(x,v='005') {
-  print(x)
+.modisHTTP <- function(x,version='005') {
   if (!require(RCurl)) stop("Package RCurl is not installed")
   mp <- modisProducts()
   if (is.numeric(x)) {
@@ -31,7 +30,6 @@ modisProducts <- function() {
     x <- as.character(mp[x,1])
   }
   x <- trim(x)
-  print(x)
   if ('e4ftl01.cr.usgs.gov' %in% strsplit(x,'/')[[1]]) {
     if (strsplit(x,'/')[[1]][1] != 'http:') x <- paste('http://',x,sep='')
     if (strsplit(x,'')[[1]][length(strsplit(x,'')[[1]])] != "/") x <- paste(x,"/",sep="")
@@ -46,10 +44,7 @@ modisProducts <- function() {
     } else {
        ad <- "MOTA"
     }
-    print(ad)
-    print(v)
-    x <- paste("http://e4ftl01.cr.usgs.gov/",ad,"/",x,".",v,"/",sep="")
-    print(x)
+    x <- paste("http://e4ftl01.cr.usgs.gov/",ad,"/",x,".",version,"/",sep="")
     if (!url.exists(x)) stop("the http address does not exist! Version may be incorrect OR Server is down!")
   }
   x
@@ -134,7 +129,7 @@ modisProducts <- function() {
 }
 
 .getMODIS <- function(x, h, v, dates, version='005') {
-  xx <- .modisHTTP(x,v=version)
+  xx <- .modisHTTP(x,version=version)
   Modislist <- .getModisList(xx,h=h,v=v,dates=dates)
   if (length(Modislist) == 0) stop("There is NO available images for the specified product!")
   out <- data.frame(matrix(nrow=0,ncol=2))
@@ -246,7 +241,7 @@ setMethod("reprojectHDF", "character",
 
 setMethod("getMODIS", "character",
           function(x,h,v,dates,version='005') {
-            xx <- .modisHTTP(x,v=version)
+            xx <- .modisHTTP(x,version=version)
             Modislist <- .getModisList(xx,h=h,v=v,dates=dates)
             if (length(Modislist) == 0) stop("There is NO available images for the specified product!")
             
@@ -277,7 +272,7 @@ setMethod("getMODIS", "character",
 
 setMethod("getMODIS", "numeric",
           function(x,h,v,dates,version='005') {
-            xx <- .modisHTTP(x,v=version)
+            xx <- .modisHTTP(x,version=version)
             Modislist <- .getModisList(xx,h=h,v=v,dates=dates)
             if (length(Modislist) == 0) stop("There is NO available images for the specified product!")
             
