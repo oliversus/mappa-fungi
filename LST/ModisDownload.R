@@ -9,7 +9,19 @@
 # Dependent library: RCurl
 # Reference: http://www.r-gis.net
 
-# MRTproj function is a wrapper to MRT tools, can be used to resample and subset an HDF image and convert to GeoTiff
+# MRTproj function is a wrapper to MRT tools, can be used to resample and
+# subset an HDF image and convert to GeoTiff
+
+# COMMAND LINE CALL: 
+  # ModisDownload(x=product, h=h, v=v, dates=dates, MRTpath=MRTpath, mosaic=T,
+  # proj=T, utm_zone=32,
+  # version='005',pixel_size=1000,bands_subset=bands_subset)
+# WITH:
+  # product="MOD11A1", h=18, v=c(3,4), dates="2015.10.01",
+  # MRTpath="/cmsaf/cmsaf-hcp1/osus/MRT/MRT/bin",
+  # bands_subset="1 0 0 0 1 0 0 0 0 0 0 0"
+
+##########################################################################################
 
 library(raster)
 
