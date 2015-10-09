@@ -12,14 +12,22 @@
 # MRTproj function is a wrapper to MRT tools, can be used to resample and
 # subset an HDF image and convert to GeoTiff
 
+##########################################################################################
+
+# first, install MRT tools using automatic script mrt_install
+# ModisDownload.R can be initiated anywhere, as long as file ModisLP.Rdata 
+# is referenced by a fully qualified path
+# output data are written to working directory
+
 # COMMAND LINE CALL: 
   # ModisDownload(x=product, h=h, v=v, dates=dates, MRTpath=MRTpath, mosaic=T,
-  # proj=T, utm_zone=32,
-  # version='005',pixel_size=1000,bands_subset=bands_subset)
+  # proj=T, utm_zone=32, version='005', pixel_size=1000,
+  # bands_subset=bands_subset, UL=UL, LR=LR)
 # WITH:
   # product="MOD11A1", h=18, v=c(3,4), dates="2015.10.01",
   # MRTpath="/cmsaf/cmsaf-hcp1/osus/MRT/MRT/bin",
   # bands_subset="1 0 0 0 1 0 0 0 0 0 0 0"
+  # UL=c(217146.2, 6181346.0), LR=c(915535.1, 5178478.0)
 
 ##########################################################################################
 
