@@ -8,11 +8,6 @@ data source: MODIS...
 ideally, retrieve 8-Day product from both Terra and Aqua, but 4 days apart
 
 data access:
-     - Daac2Disk_Linux command line tool
-     or
-     - MODIS_download.R
-     (http://spatial-analyst.net/wiki/index.php?title=Download_and_resampling_of_MODIS_images)
-     or
      - ModisDownload.R
      (http://r-gis.net/?q=ModisDownload)
      
