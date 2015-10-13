@@ -5,7 +5,8 @@ data source: MODIS...
      or
      - Land Surface Temperature/Emissivity 8-Day L3 Global 1km (MOD11A2/MYD11A2)
 
-ideally, retrieve 8-Day product from both Terra and Aqua, but 4 days apart
+ideally, retrieve 8-Day product from both Terra and Aqua,
+but 4 days apart to get quasi-4-daily coverage
 
 data access:
      - Daac2Disk_Linux command line tool
