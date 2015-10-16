@@ -9,6 +9,7 @@
 # Dependent library: RCurl
 # Reference: http://www.r-gis.net
 
+
 # MRTproj function is a wrapper to MRT tools, can be used to resample and
 # subset an HDF image and convert to GeoTiff
 
@@ -19,19 +20,24 @@
 # is referenced by a fully qualified path
 # output data are written to working directory
 
+# if MRT_DATA_DIR export has no effect, use the following within R
+# Sys.setenv(MRT_DATA_DIR  = "/home/oliver/MRT/MRT/data/")
+
 # COMMAND LINE CALL: 
   # ModisDownload(x=product, h=h, v=v, dates=dates, MRTpath=MRTpath, mosaic=T,
   # proj=T, utm_zone=32, version='005', pixel_size=1000,
-  # bands_subset=bands_subset, UL=UL, LR=LR)
+  # bands_subset=bands_subset, UL=UL, LR=LR, delete=T)
 # WITH:
-  # product="MOD11A1", h=18, v=c(3,4), dates="2015.10.01",
-  # MRTpath="/cmsaf/cmsaf-hcp1/osus/MRT/MRT/bin",
+  # product="MOD11A1"; h=18; v=c(3,4); dates="2015.10.01",
+  # MRTpath="/home/oliver/MRT/MRT/bin",
   # bands_subset="1 0 0 0 1 0 0 0 0 0 0 0"
-  # UL=c(217146.2, 6181346.0), LR=c(915535.1, 5178478.0)
+  # UL=c(217146.2, 6181346.0); LR=c(915535.1, 5178478.0)
 
 ##########################################################################################
 
 library(raster)
+
+Sys.setenv(MRT_DATA_DIR  = "/home/oliver/MRT/MRT/data/")
 
 modisProducts <- function() {
   #load(system.file("external/ModisLP.RData", package="rts"))
@@ -42,7 +48,9 @@ modisProducts <- function() {
 
 #-----------------------
 
+
 .modisHTTP <- function(x,version='005') {
+
   if (!require(RCurl)) stop("Package RCurl is not installed")
   mp <- modisProducts()
   if (is.numeric(x)) {
@@ -57,6 +65,7 @@ modisProducts <- function() {
   } else {
     w <- which(mp[,1] == x)
     if (length(w) != 1) stop("The Name does not exist in MODIS Land produnct list!")
+
     if (as.character(mp[w,2]) == "Terra") {
        ad <- "MOLT" 
     } else if (as.character(mp[w,2]) == "Aqua") {
@@ -65,6 +74,7 @@ modisProducts <- function() {
        ad <- "MOTA"
     }
     x <- paste("http://e4ftl01.cr.usgs.gov/",ad,"/",x,".",version,"/",sep="")
+
     if (!url.exists(x)) stop("the http address does not exist! Version may be incorrect OR Server is down!")
   }
   x
@@ -85,15 +95,17 @@ modisProducts <- function() {
     if (class(items) == "try-error") {
       Sys.sleep(5)
       ce <- ce + 1
-      if (ce == (try.nr+1)) stop("Download error: Server does not response!")
+      if (ce == (try.nr+1)) stop("Download error in getModisList: Server does not respond!")
     }
   }
   items <- items[-c(1:19)]
   # get the directory names (available dates)
   dirs <- unlist(lapply(strsplit(unlist(lapply(strsplit(items,'href'),function(x){strsplit(x[2],'/')[[1]][1]})),'"'),function(x) {x[2]}))
   dirs <- na.omit(dirs)
+
   d <- as.Date(dirs,format='%Y.%m.%d')
   
+
   # extract the selected dates
   if (length(dates) == 2) {
     dirs <- dirs[which(d >= dates[1] & d <= dates[2])]
@@ -114,7 +126,7 @@ modisProducts <- function() {
       if (class(getlist) == "try-error") {
         Sys.sleep(5)
         ce <- ce + 1
-        if (ce == (try.nr+1)) stop("Download error: Server does not response!")
+        if (ce == (try.nr+1)) stop("Download error in getlist: Server does not respond!")
       }
     }
     getlist <- getlist[-c(1:19)]
@@ -143,13 +155,15 @@ modisProducts <- function() {
 .downloadHTTP <- function(x,filename) {
   success <- FALSE
   er <- try( writeBin(getBinaryURL(x),con=filename),silent=TRUE)
-  if (class(er) == "try-error") print("Download Error: Server does not response!!")
+  if (class(er) == "try-error") print("Download Error in downloadHTTP: Server does not respond!!")
   else success <- TRUE
   return(success)
 }
 
 .getMODIS <- function(x, h, v, dates, version='005') {
+
   xx <- .modisHTTP(x,version=version)
+
   Modislist <- .getModisList(xx,h=h,v=v,dates=dates)
   if (length(Modislist) == 0) stop("There is NO available images for the specified product!")
   out <- data.frame(matrix(nrow=0,ncol=2))
@@ -161,6 +175,8 @@ modisProducts <- function() {
     for (ModisName in Modislist[[d]]) {
       n <- strsplit(ModisName,"/")[[1]]
       n <- n[length(n)]
+      print(ModisName)
+      print(n)
       if (.downloadHTTP(ModisName,n)) {
         out <- rbind(out,data.frame(Date=d,Name=n))
       }
@@ -211,14 +227,16 @@ setMethod("mosaicHDF", "character",
             # generate mosaic:
             
             if (bands_subset != '') {
+
               e <- system(paste(MRTpath, '/mrtmosaic -i ', MRTpath,
               '/TmpMosaic.prm -s "',bands_subset,'" -o ', filename, sep=""))
-              if (e != 0) warning ("Mosaic failed! 'bands_subset' may has incorrect structure!")
+              if (e != 0) warning ("Mosaic failed! 'bands_subset' may have incorrect structure!")
             } else {
               e <- system(paste(MRTpath, '/mrtmosaic -i ', MRTpath,
               '/TmpMosaic.prm -o ', filename, sep=""))
 	      print(paste(MRTpath, '/mrtmosaic -i ', MRTpath,
               '/TmpMosaic.prm -o ', filename, sep=""))
+
               if (e != 0) warning ("Mosaic failed!")
             }
             if (delete & e == 0) for (ModisName in hdfNames) unlink(paste(getwd(), '/', ModisName, sep=""))
@@ -233,7 +251,9 @@ setMethod("reprojectHDF", "character",
                    bands_subset='',proj_params='0 0 0 0 0 0 0 0 0 0 0 0',datum='WGS84',utm_zone=NA,pixel_size=1000) {
             
             fname = file('tmp.prm', open="wt")
+
             write(paste('INPUT_FILENAME = ', hdfName, sep=""), fname) 
+
             if (bands_subset != '') {
               write(paste('SPECTRAL_SUBSET = ( ',bands_subset,' )',sep=''),fname,append=TRUE)
             }
@@ -250,7 +270,9 @@ setMethod("reprojectHDF", "character",
             if (proj_type == 'UTM') write(paste('UTM_ZONE = ',utm_zone,sep=''), fname, append=TRUE)
             write(paste('OUTPUT_PIXEL_SIZE = ',as.character(pixel_size),sep=''), fname, append=TRUE)
             close(fname)
+
 	    print(paste(MRTpath, '/resample -p ',getwd(),'/','tmp.prm', sep=''))
+
             e <- system(paste(MRTpath, '/resample -p ',getwd(),'/','tmp.prm', sep=''))
             if (e == 0) return (TRUE)
             else return(FALSE)
@@ -261,7 +283,9 @@ setMethod("reprojectHDF", "character",
 
 setMethod("getMODIS", "character",
           function(x,h,v,dates,version='005') {
+
             xx <- .modisHTTP(x,version=version)
+
             Modislist <- .getModisList(xx,h=h,v=v,dates=dates)
             if (length(Modislist) == 0) stop("There is NO available images for the specified product!")
             
@@ -292,7 +316,9 @@ setMethod("getMODIS", "character",
 
 setMethod("getMODIS", "numeric",
           function(x,h,v,dates,version='005') {
+
             xx <- .modisHTTP(x,version=version)
+
             Modislist <- .getModisList(xx,h=h,v=v,dates=dates)
             if (length(Modislist) == 0) stop("There is NO available images for the specified product!")
             
