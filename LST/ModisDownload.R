@@ -20,20 +20,24 @@
 # is referenced by a fully qualified path
 # output data are written to working directory
 
+# if MRT_DATA_DIR export has no effect, use the following within R
+# Sys.setenv(MRT_DATA_DIR  = "/home/oliver/MRT/MRT/data/")
+
 # COMMAND LINE CALL: 
   # ModisDownload(x=product, h=h, v=v, dates=dates, MRTpath=MRTpath, mosaic=T,
   # proj=T, utm_zone=32, version='005', pixel_size=1000,
-  # bands_subset=bands_subset, UL=UL, LR=LR)
+  # bands_subset=bands_subset, UL=UL, LR=LR, delete=T)
 # WITH:
-  # product="MOD11A1", h=18, v=c(3,4), dates="2015.10.01",
-  # MRTpath="/cmsaf/cmsaf-hcp1/osus/MRT/MRT/bin",
+  # product="MOD11A1"; h=18; v=c(3,4); dates="2015.10.01",
+  # MRTpath="/home/oliver/MRT/MRT/bin",
   # bands_subset="1 0 0 0 1 0 0 0 0 0 0 0"
-  # UL=c(217146.2, 6181346.0), LR=c(915535.1, 5178478.0)
+  # UL=c(217146.2, 6181346.0); LR=c(915535.1, 5178478.0)
 
 ##########################################################################################
 
-
 library(raster)
+
+Sys.setenv(MRT_DATA_DIR  = "/home/oliver/MRT/MRT/data/")
 
 modisProducts <- function() {
   #load(system.file("external/ModisLP.RData", package="rts"))
@@ -91,7 +95,7 @@ modisProducts <- function() {
     if (class(items) == "try-error") {
       Sys.sleep(5)
       ce <- ce + 1
-      if (ce == (try.nr+1)) stop("Download error: Server does not response!")
+      if (ce == (try.nr+1)) stop("Download error in getModisList: Server does not respond!")
     }
   }
   items <- items[-c(1:19)]
@@ -122,7 +126,7 @@ modisProducts <- function() {
       if (class(getlist) == "try-error") {
         Sys.sleep(5)
         ce <- ce + 1
-        if (ce == (try.nr+1)) stop("Download error: Server does not response!")
+        if (ce == (try.nr+1)) stop("Download error in getlist: Server does not respond!")
       }
     }
     getlist <- getlist[-c(1:19)]
@@ -151,7 +155,7 @@ modisProducts <- function() {
 .downloadHTTP <- function(x,filename) {
   success <- FALSE
   er <- try( writeBin(getBinaryURL(x),con=filename),silent=TRUE)
-  if (class(er) == "try-error") print("Download Error: Server does not response!!")
+  if (class(er) == "try-error") print("Download Error in downloadHTTP: Server does not respond!!")
   else success <- TRUE
   return(success)
 }
@@ -171,6 +175,8 @@ modisProducts <- function() {
     for (ModisName in Modislist[[d]]) {
       n <- strsplit(ModisName,"/")[[1]]
       n <- n[length(n)]
+      print(ModisName)
+      print(n)
       if (.downloadHTTP(ModisName,n)) {
         out <- rbind(out,data.frame(Date=d,Name=n))
       }
@@ -224,7 +230,7 @@ setMethod("mosaicHDF", "character",
 
               e <- system(paste(MRTpath, '/mrtmosaic -i ', MRTpath,
               '/TmpMosaic.prm -s "',bands_subset,'" -o ', filename, sep=""))
-              if (e != 0) warning ("Mosaic failed! 'bands_subset' may has incorrect structure!")
+              if (e != 0) warning ("Mosaic failed! 'bands_subset' may have incorrect structure!")
             } else {
               e <- system(paste(MRTpath, '/mrtmosaic -i ', MRTpath,
               '/TmpMosaic.prm -o ', filename, sep=""))
