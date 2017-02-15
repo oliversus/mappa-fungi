@@ -3,7 +3,7 @@ PROGRAM BUFR2NETCDF
   !  PURPOSE: DECODE THE OPERATIONAL 1 KM - SOIL MOISTURE PRODUCT IN BUFR FORMAT,
   !           RE-ENCODE IN netCDF FORMAT
   !  EXTERNALS: BUFREX, BUSEL2, BUS0123, PBBUFR, PBOPEN, PBCLOSE
-  !  COMPILATION: sudo gfortran -Wl,-rpath -Wl,/usr/local/lib -o bufr2netcdf bufr2netcdf.F90 -L${NETCDF_libdir} -lnetcdf -lnetcdff -I${NETCDF_incdir} -L${HDF_libdir} -lhdf5_hl -lhdf5 -L${BUFR_libdir} -lbufr; with *_libdir=/usr/local/lib and  export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
+  !  COMPILATION: sudo gfortran -Wl,-rpath -Wl,/usr/local/lib -o bufr2netcdf bufr2netcdf.F90 -L${NETCDF_libdir} -lnetcdf -lnetcdff -I${NETCDF_incdir} -L${HDF_libdir} -lhdf5_hl -lhdf5 -L${BUFR_libdir} -lbufr; with *_libdir=/usr/local/lib and export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
   !  CALL: bufr2netcdf <BUFR file's name>
   !  OUTPUT: NetCDF file, with extension (i.e. everything after the last dot) replaced by 'nc'
   !          (h08_20090816_105100_metopa_14658_ZAMG.buf becomes h08_20090816_105100_metopa_14658_ZAMG.nc)
