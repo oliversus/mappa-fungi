@@ -2,7 +2,8 @@ library(ncdf)
 library(raster)
 library(rworldmap)
 
-nc=open.ncdf("h08_20151005_090300_metopb_15808_ZAMG_classic.nc")
+#nc=open.ncdf("h08_20151005_090300_metopb_15808_ZAMG_classic.nc")
+nc=open.ncdf("h08_20150928_193600_metopb_15715_ZAMG.nc")
 
 data=get.var.ncdf(nc,var="soil_moisture")
 lon=get.var.ncdf(nc,var="longitude")
@@ -19,6 +20,8 @@ raster = raster(t(cdata),xmn=min(clon),xmx=max(clon),ymn=min(lat),ymx=max(lat))
 raster = flip(raster, 2)
 
 writeRaster(raster, "out.tif")
+
+data(coastsCoarse)
 
 plot(raster)
 plot(coastsCoarse,add=T,col="black")
