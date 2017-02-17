@@ -26,9 +26,8 @@ def create_raster(lon, lat, variable, split, lon_split=None, left=None):
         variable = flipud(variable)
         tif_suffix = ".tif"
 
-    out_of_lon = ((lon > 5.6) & (lon < 15.6)).sum() == 0
-    out_of_lat = ((lat > 47.) & (lat < 55.5)).sum() == 0
-    if out_of_lon or out_of_lat:
+    not_in_germany = ((lon > 5.6) & (lon < 15.1) & (lat > 47.) & (lat < 55.5)).sum() == 0
+    if not_in_germany:
         return
 
     # For each pixel I know it's latitude and longitude.
@@ -55,34 +54,41 @@ if __name__ == '__main__':
     for root, dirs, filenames in os.walk(globals.data_dir):
         for file in filenames:
             if file.endswith('.nc'):
+                # open NetDF input file
                 nc = Dataset(os.path.join(root, file))
+                # get lat/lon
                 lon = nc["longitude"][:]
                 lat = nc["latitude"][:]
-                out_of_lon = ((lon > 5.6) & (lon < 15.6)).sum() == 0
-                out_of_lat = ((lat > 47.) & (lat < 55.5)).sum() == 0
+                # build lat/lon grid
+                lon_m, lat_m = np.meshgrid(lon, lat)
+                # check whether there are no data in Germany
+                not_in_germany = ((lon_m > 5.6) & (lon_m < 15.1) & (lat_m > 47.) & (lat_m < 55.5)).sum() == 0
+                # or file size too small
                 too_small = os.stat(os.path.join(root, file)).st_size < 100000
-                if out_of_lat or out_of_lon or too_small:
+                # if so, remove input file and skip
+                if not_in_germany or too_small:
                     os.remove(os.path.join(root, file))
                     print("Deleting " + file + " as criteria not met.")
                     continue
+                # else, convert files
                 print("Converting " + file + " to tif format, splitting when necessary.")
                 # split data where longitude increment is larger than median increment + 2 standard deviations
                 lon_diff = np.diff(lon)
+                # files are not always split, so check whether discontinuity in lon exists
                 try:
                     lon_split = int(np.where(lon_diff > (np.median(lon_diff) + 2 * np.std(lon_diff)))[0])
                     split = True
+                # if not, don't split
                 except:
                     split = False
-
+                
                 soil_moisture = nc["soil_moisture"][:]
                 soil_moisture[soil_moisture > 100.] = np.nan
                 soil_moisture = ma.masked_invalid(soil_moisture)
 
-                lon_m, lat_m = np.meshgrid(lon, lat)
                 if split:
                     create_raster(lon_m, lat_m, soil_moisture, split, lon_split=lon_split, left=True)
                     create_raster(lon_m, lat_m, soil_moisture, split, lon_split=lon_split, left=False)
-
                 else:
                     create_raster(lon_m, lat_m, soil_moisture, split)
                 os.remove(os.path.join(root, file))
