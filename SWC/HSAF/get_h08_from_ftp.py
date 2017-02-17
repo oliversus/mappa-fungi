@@ -12,8 +12,6 @@ import globals
 HOST = 'ftphsaf.meteoam.it'
 # compression file suffix
 compression_suffix = '.gz'
-# data directory
-# data_dir = "/mnt/DATA/geodata/HSAF/"
 
 def main():
     try:
@@ -38,7 +36,7 @@ def main():
     filelist = []
     for line in data:
         col = line.split()
-        datestr = ''.join(col[-1].split("_")[1:3]) #col[-1].split("_")[1] # ' '.join(line.split()[0:2])
+        datestr = ''.join(col[-1].split("_")[1:3])
         date = time.strptime(datestr, '%Y%m%d%H%M%S')
         datelist.append(date)
         filelist.append(col[-1])
@@ -70,7 +68,7 @@ def main():
             os.unlink(filename)
         else:
             print "***Downloaded*** %s " % filename
-        if i == 20:
+        if i == 100:
             return
 
     f.quit()
