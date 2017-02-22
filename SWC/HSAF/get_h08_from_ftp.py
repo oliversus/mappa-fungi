@@ -68,7 +68,7 @@ def main():
             os.unlink(filename)
         else:
             print "***Downloaded*** %s " % filename
-        if i == 100:
+        if i == 20:
             return
 
     f.quit()
